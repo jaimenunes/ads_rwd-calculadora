@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Calculadora</title>
+</head>
+
+<body>
+    <div class="container">
+        <input class="grid-item-visor" id="resultado" placeholder="" disabled="disabled">
+        <div class="grid-item key" id="limparDisplay">CE</div>
+        <div class="grid-item key" id="limparcalculo">C</div>
+        <div class="grid-item key" id="backspace">&#xab;</div>
+        <div class="grid-item key aritmetica" id="operadorDiv">/</div>
+        <div class="grid-item key" id="tecla7">7</div>
+        <div class="grid-item key" id="tecla8">8</div>
+        <div class="grid-item key" id="tecla9">9</div>
+        <div class="grid-item aritmetica" id="operadorMulti">*</div>
+        <div class="grid-item key" id="tecla4">4</div>
+        <div class="grid-item key" id="tecla5">5</div>
+        <div class="grid-item key" id="tecla6">6</div>
+        <div class="grid-item aritmetica" id="operadorSub">-</div>
+        <div class="grid-item key" id="tecla1">1</div>
+        <div class="grid-item key" id="tecla2">2</div>
+        <div class="grid-item key" id="tecla3">3</div>
+        <div class="grid-item aritmetica" id="operadorSum">+</div>
+        <div class="grid-item key"></div>
+        <div class="grid-item key" id="tecla0">0</div>
+        <div class="grid-item key" id="decimal">,</div>
+        <div class="grid-item aritmetica" id="igual">=</div>
+    </div>
+    <script>
+        const display = document.getElementById('resultado');
+        const numeros = document.querySelectorAll('[id*= tecla]');
+        const operadores = document.querySelectorAll('[id*= operador]');
+
+        let novoNumero = true;
+        let operador;
+        let numeroAnterior;
+
+        const operacaoPendente = () => operador != undefined;
+        const calcular = () => {
+            if(operacaoPendente()){
+                const numeroAtual = parseFloat(display.value.replace(',','.'));
+                novoNumero =true
+                if(operador === '+'){
+                    atualizarDisplay(numeroAnterior + numeroAtual);
+                } else if(operador === '-'){
+                    atualizarDisplay(numeroAnterior - numeroAtual);
+                } else if(operador === '*'){
+                    atualizarDisplay(numeroAnterior * numeroAtual);
+                }else{
+                    atualizarDisplay(numeroAnterior / numeroAtual);
+                }
+                
+            }
+        }
+
+        const atualizarDisplay = (texto) => {
+            if (novoNumero) {
+                display.value = texto.toLocaleString('BR');
+                novoNumero = false;
+            } else {
+                display.value += texto;
+            }
+        }
+
+        const inserirNumero = (evento) => atualizarDisplay(evento.target.textContent);
+        numeros.forEach(numero => numero.addEventListener('click', inserirNumero));
+
+        const selecionarOperador = (evento) => {
+            if (!novoNumero) {
+                calcular()
+                novoNumero = true;
+                operador = evento.target.textContent;
+                numeroAnterior = parseFloat(display.value.replace(',','.'));
+                console.log(operador)
+                console.log(numeroAnterior)
+            }
+        }
+        operadores.forEach(operador => operador.addEventListener('click', selecionarOperador));
+        const ativarIgual = () => {
+            calcular();
+            operador = undefined;
+        }
+        document.getElementById('igual').addEventListener('click', ativarIgual);
+
+        const limparDisplay = () => display.value = '';
+        document.getElementById('limparDisplay').addEventListener('click', limparDisplay);
+
+        const limparCalculo = () => {
+            operador = undefined;
+            novoNumero = true;
+            numeroAnterior = undefined;
+            limparDisplay()
+        }
+        document.getElementById('limparcalculo').addEventListener('click', limparCalculo);
+
+        const removerUltimo = () => {
+            display.value = display.value.slice(0, -1)
+        }
+        document.getElementById("backspace").addEventListener('click', removerUltimo)
+
+        const existeDecimal = () => { display.value.indexOf(',') != -1;}
+        const existeValor = () => {display.value.length > 0;}
+        
+        const inseriDecimal = () => {
+            if(!existeDecimal()){
+                if(existeValor){
+                    atualizarDisplay(',')
+                }
+            }
+        }
+        document.getElementById('decimal').addEventListener('click', inseriDecimal)
+    </script>
+</body>
+
+</html>
